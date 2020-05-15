@@ -1,13 +1,17 @@
 # Application of uasyncio to hardware interfaces
 
+> ハードウェアインターフェースへのuasyncioを用いたアプリケーション
+
 This tutorial is intended for users having varying levels of experience with
 asyncio and includes a section for complete beginners.
 
+> このチュートリアルは、asyncioに対する様々な経験値を持つユーザーを対象としており、全くの初心者向けのセクションも含まれています。
+
 # Contents
 
- 0. [Introduction 序章](./TUTORIAL.ja-jp.md#0-introduction)  
+ 0. [Introduction イントロダクション](./TUTORIAL.ja-jp.md#0-introduction)  
   0.1 [Installing uasyncio on bare metal](./TUTORIAL.ja-jp.md#01-installing-uasyncio-on-bare-metal)  
- 1. [Cooperative scheduling](./TUTORIAL.ja-jp.md#1-cooperative-scheduling)  
+ 1. [Cooperative scheduling 協調的スケジューリング](./TUTORIAL.ja-jp.md#1-cooperative-scheduling)  
   1.1 [Modules](./TUTORIAL.ja-jp.md#11-modules)  
  2. [uasyncio](./TUTORIAL.ja-jp.md#2-uasyncio)  
   2.1 [Program structure: the event loop](./TUTORIAL.ja-jp.md#21-program-structure-the-event-loop)  
@@ -56,7 +60,7 @@ asyncio and includes a section for complete beginners.
   7.6 [Socket programming](./TUTORIAL.ja-jp.md#76-socket-programming)  
    7.6.1 [WiFi issues](./TUTORIAL.ja-jp.md#761-wifi-issues)  
   7.7 [Event loop constructor args](./TUTORIAL.ja-jp.md#77-event-loop-constructor-args)  
- 8. [Notes for beginners](./TUTORIAL.ja-jp.md#8-notes-for-beginners)  
+ 8. [Notes for beginners 初心者向けノート](./TUTORIAL.ja-jp.md#8-notes-for-beginners)  
   8.1 [Problem 1: event loops](./TUTORIAL.ja-jp.md#81-problem-1:-event-loops)  
   8.2 [Problem 2: blocking methods](./TUTORIAL.ja-jp.md#8-problem-2:-blocking-methods)  
   8.3 [The uasyncio approach](./TUTORIAL.ja-jp.md#83-the-uasyncio-approach)  
@@ -69,13 +73,13 @@ asyncio and includes a section for complete beginners.
 
 # 0. Introduction
 
-> 0 - 序章
+> 0 - イントロダクション
 
 Most of this document assumes some familiarity with asynchronous programming.
 For those new to it an introduction may be found
-[in section 7](./TUTORIAL.ja-jp.md#8-notes-for-beginners).
+[in section 8](./TUTORIAL.ja-jp.md#8-notes-for-beginners).
 
-> このドキュメントの多くは、非同期プログラミングにある程度慣れていることを前提として記述されています。初めての方には、[ セクション 7 ](./TUTORIAL.ja-jp.md#8-notes-for-beginners)で、紹介しています。
+> このドキュメントの多くは、非同期プログラミングにある程度慣れていることを前提として記述されています。不慣れな方は、[セクション 8](./TUTORIAL.ja-jp.md#8-notes-for-beginners)の初心者向けノートを参照してください。
 
 The MicroPython `uasyncio` library comprises a subset of Python's `asyncio`
 library. It is designed for use on microcontrollers. As such it has a small RAM
@@ -85,7 +89,7 @@ design drivers in such a way that the application continues to run while the
 driver is awaiting a response from the hardware. The application remains
 responsive to events and to user interaction.
 
-> MicroPythonの `uasyncio` ライブラリは、Pythonの `asyncio` ライブラリのサブセットとして構成されています。これはマイクロコントローラ上で使用するために設計されており、RAMのフットプリント（使用容量）が小さく、RAMの割り当てをゼロにしてコンテキストを高速に切り替えられます。このドキュメントでは、ハードウェアデバイスとのインターフェースに焦点を当てて、その使用方法を説明します。その目的は、ドライバがハードウェアからの応答を待っている間、アプリケーションを実行し続けるようにドライバを設計することです。アプリケーションは、イベントやユーザーのインタラクションに対して応答性を保ちます。
+> MicroPythonの `uasyncio` ライブラリは、Pythonの `asyncio` ライブラリのサブセットとして構成されています。これはマイクロコントローラ上で使用するために設計されており、RAMのフットプリント（使用容量）が小さく、RAMへの割り当てをゼロにしてコンテキストを高速に切り替えられます。このドキュメントでは、ハードウェアデバイスとのインターフェースに焦点を当てて、その使用方法を説明します。その目的は、ドライバがハードウェアからの応答を待っている間、アプリケーションを実行し続けるようにドライバを設計することです。アプリケーションは、イベントやユーザー操作に対して応答性を保ちます。
 
 Another major application area for asyncio is in network programming: many
 guides to this may be found online.
@@ -159,7 +163,7 @@ The `micropip.py` utility runs under Python 3.2 or above and runs under Linux,
 Windows and OSX. It may be found
 [here](https://github.com/peterhinch/micropython-samples/tree/master/micropip).
 
-> インターネットに接続できないハードウェア(Pyboard V1.xなど)では、最も簡単なインストール方法は、PC上で、`micropip.py`を実行して、指定したディレクトリにインストールし、作成されたディレクトリ構造をターゲットハードウェアにコピーする方法です。micropip.py` ユーティリティは Python 3.2 以上で動作し、Linux, Windows, OSX で動作します。詳しくは、[こちら（英語）](https://github.com/peterhinch/micropython-samples/tree/master/micropip)を参照してください。
+> インターネットに接続できないハードウェア(Pyboard V1.xなど)での最も簡単なインストール方法は、PC上で、`micropip.py`を実行して、指定したディレクトリにインストールし、作成されたディレクトリ構造をターゲットハードウェアにコピーする方法です。micropip.py` ユーティリティは Python 3.2 以上で動作し、Linux, Windows, OSX で動作します。詳しくは、[こちら（英語）](https://github.com/peterhinch/micropython-samples/tree/master/micropip)を参照してください。
 
 Typical invocation:
 
@@ -211,17 +215,27 @@ rebuilding.
 
 # 1. Cooperative scheduling
 
+> 1 協調的スケジューリング
+
 The technique of cooperative multi-tasking is widely used in embedded systems.
 It offers lower overheads than pre-emptive scheduling and avoids many of the
 pitfalls associated with truly asynchronous threads of execution.
+
+> 協調的マルチタスクの技術は、組み込みシステムで広く使われています。プリエンプティブスケジューリングよりも低いオーバーヘッドを提供し、真の非同期スレッド実行に関連する多くの落とし穴を回避します。
 
 ###### [Contents](./TUTORIAL.ja-jp.md#contents)
 
 ## 1.1 Modules
 
+> 1.1 モジュール
+
 The following modules are provided which may be copied to the target hardware.
 
+> 次のモジュールが提供されており、ターゲットハードウェアにコピーすることができます。
+
 **Libraries**
+
+> ライブラリー
 
  1. [asyn.py](./asyn.py) Provides synchronisation primitives `Lock`, `Event`,
  `Barrier`, `Semaphore`, `BoundedSemaphore`, `Condition` and `gather`. Provides
@@ -231,10 +245,17 @@ The following modules are provided which may be copied to the target hardware.
  generalisation of switches providing logical rather than physical status along
  with double-clicked and long pressed events.
 
+> 1. [asyn.py](./asyn.py) 同期プリミティブとして、Lock、Event、Barrier、Semaphore、BoundedSemaphore、Condition、gatherを提供し、NamedTask と Cancellable クラスを介したタスクのキャンセルをサポートしています。
+> 2. [aswitch.py](./aswitch.py) スイッチやプッシュボタンをインターフェースするためのクラスと、ソフトウェアで再トリガー可能な遅延オブジェクトを提供します。プッシュボタンは、スイッチを一般化したもので、ダブルクリックや長押しイベントと共に、物理的なステータスではなく論理的なステータスを提供します。
+
 **Demo Programs**
+
+> デモ・プログラム
 
 The first two are the most immediately rewarding as they produce visible
 results by accessing Pyboard hardware.
+
+> 最初の2つは、Pyboardのハードウェアにアクセスすることで目に見える成果が得られるため、すぐに実感できます。
 
  1. [aledflash.py](./aledflash.py) Flashes the four Pyboard LEDs asynchronously
  for 10s. The simplest uasyncio demo. Import it to run.
@@ -259,6 +280,19 @@ results by accessing Pyboard hardware.
  'AT' modem command set.
  12. [iorw.py](./iorw.py) Demo of a read/write device driver using the stream
  I/O mechanism.
+
+> 1. [aledflash.py](./aledflash.py) は、Pyboard上の4つのLEDを10秒間非同期で点滅させます。最もシンプルな uasyncio のデモです。インポートすると実行されます。
+> 2. [apoll.py](./apoll.py) Pyboard 加速度センサ用のデバイスドライバです。デバイスをポーリングするためのコルーチンの使用をデモします。20秒間ほど実行します。インポートすると実行されます。Pyboard V1.xが必要です。
+> 3. [astests.py](./astests.py) aswitchモジュールのテスト/デモンストレーションプログラム。
+> 4. [asyn_demos.py](./asyn_demos.py) シンプルなタスクキャンセルのデモ。
+> 5. [roundrobin.py](./roundrobin.py) ラウンドロビンスケジューリングのデモ。スケジューリング性能のベンチマークにもなります。
+> 6. [awaitable.py](./awaitable.py) 待機中のクラスのデモ。インタフェースをポーリングするデバイスドライバの実装方法の一つ。
+> 7. [chain.py](./chain.py) Pythonのドキュメントからコピーしました。コアーチンのチェーン化のデモ。
+> 8. [aqtest.py](./aqtest.py) uasyncio `Queue` クラスのデモ。
+> 9. [aremote.py](./aremote.py) NECプロトコル対応IRリモコン用デバイスドライバの例です。
+> 10. [auart.py](./auart.py) Pyboard UARTを介したストリーミングI/Oのデモ。
+> 11. [auart_hd.py](./auart_hd.py) 半二重プロトコルを使用してデバイスと通信するためにPyboard UARTを使用します。AT' モデムコマンドセットを使用しているデバイスなどに適しています。
+> 12. [iorw.py](./iorw.py) ストリームI/Oの仕組みを利用した読み書きデバイスドライバのデモ。
 
 **Test Programs**
 
@@ -1789,18 +1823,26 @@ Ref [this issue](https://github.com/micropython/micropython-lib/issues/295).
 
 # 8 Notes for beginners
 
+> 8 初心者向けノート
+
 These notes are intended for those new to asynchronous code. They start by
 outlining the problems which schedulers seek to solve, and give an overview of
 the `uasyncio` approach to a solution.
+
+> このノートは、非同期コードを初めて使う人を対象にしています。まず、スケジューラが解決してくれる問題点についての概要を説明し、解決に向けた `uasyncio` のアプローチの概要を説明しています。
 
 [Section 8.5](./TUTORIAL.ja-jp.md#85-why-cooperative-rather-than-pre-emptive)
 discusses the relative merits of `uasyncio` and the `_thread` module and why
 you may prefer use cooperative (`uasyncio`) over pre-emptive (`_thread`)
 scheduling.
 
+> [セクション 8.5](./TUTORIAL.ja-jp.md#85-why-cooperative-rather-than-pre-emptive)では、 `uasyncio` と `_thread` モジュールの相対的なメリットと、プリエンプティブ（`_thread`）スケジューリングよりも 協調的（`uasyncio`）スケジューリングを使用する方が良い理由について議論しています。
+
 ###### [Contents](./TUTORIAL.ja-jp.md#contents)
 
 ## 8.1 Problem 1: event loops
+
+> 8.1 問題点1：イベントループ
 
 A typical firmware application runs continuously and is required to respond to
 external events. These might include a voltage change on an ADC, the arrival of
@@ -1809,8 +1851,12 @@ socket. These events occur asynchronously and the code must be able to respond
 regardless of the order in which they occur. Further the application may be
 required to perform time-dependent tasks such as flashing LED's.
 
+> 典型的なファームウェア・アプリケーションは継続的に動作し、外部イベントに応答することが要求されます。これらのイベントには、ADC の電圧変化、ハード割り込みの発生、UART で受信した文字、ソケットで利用可能なデータなどが含まれます。これらのイベントは非同期的に発生するため、コードは発生した順番に関係なく応答できなければなりません。さらに、アプリケーションはLEDの点滅などの時間依存のタスクを実行する必要があるかもしれません。
+
 The obvious way to do this is with an event loop. The following is not
 practical code but serves to illustrate the general form of an event loop.
+
+> これを行う明解な方法は、イベントループです。次のコードは実用的なコードではありませんが、イベントループの一般的な形式を説明しています。
 
 ```python
 def event_loop():
@@ -1841,6 +1887,8 @@ associating code with the object being controlled. We want to design a class
 for an LED capable of flashing which could be put in a module and imported. An
 OOP approach to flashing an LED might look like this:
 
+> このような単純な例では機能しますが、イベントの数が増えるにつれて、イベントループは急激に扱いづらくなります。また、コントロールされるオブジェクトにコードを関連付けるのではなく、プログラム・ロジックの多くを一箇所にまとめてしまったことで、オブジェクト指向プログラミングの原則に反しています。モジュール化し、インポートできる点滅可能なLEDのクラスを設計したいと思います。LED を点滅させる OOP アプローチは次のようになります。
+
 ```python
 import pyb
 class LED_flashable():
@@ -1857,26 +1905,38 @@ class LED_flashable():
 A cooperative scheduler such as `uasyncio` enables classes such as this to be
 created.
 
+> `uasyncio` のような協調的スケジューラを使うと、このようなクラスを作ることができます。
+
 ###### [Contents](./TUTORIAL.ja-jp.md#contents)
 
 ## 8.2 Problem 2: blocking methods
+
+> 8.2 問題点２：ブロッキング方式
 
 Assume you need to read a number of bytes from a socket. If you call
 `socket.read(n)` with a default blocking socket it will "block" (i.e. fail to
 return) until `n` bytes have been received. During this period the application
 will be unresponsive to other events.
 
+> ソケットから何バイトかのバイト数を読み込む必要があるとします。デフォルトのブロッキングソケットで `socket.read(n)` を呼び出すと、`n` バイトを受信するまで「ブロック」されます(つまり、戻りません)。この間、アプリケーションは他のイベントに反応しなくなります。
+
 With `uasyncio` and a non-blocking socket you can write an asynchronous read
 method. The task requiring the data will (necessarily) block until it is
 received but during that period other tasks will be scheduled enabling the
 application to remain responsive.
 
+> `uasyncio` とノンブロッキングソケットを使って、非同期読み出しメソッドを書くことができます。データを必要とするタスクは(必然的に)受信するまでブロックされますが、その間は他のタスクがスケジュールされるので、アプリケーションは応答性を維持することができます。
+
 ## 8.3 The uasyncio approach
+
+> 8.3 uasyncioを使ったアプローチ
 
 The following class provides for an LED which can be turned on and off, and
 which can also be made to flash at an arbitrary rate. A `LED_async` instance
 has a `run` method which can be considered to run continuously. The LED's
 behaviour can be controlled by methods `on()`, `off()` and `flash(secs)`.
+
+> 次に示したクラスは、任意の速度で点滅させたり、点灯・消灯させたりできるLEDを提供します。`LED_async` インスタンスには `run` メソッドがあり、これは継続的に実行されると考えることができます。LED の動作は、メソッド `on()`、`off()`、`flash(secs)` でコントロールできます。
 
 ```python
 import pyb
@@ -1913,11 +1973,15 @@ Note that `on()`, `off()` and `flash()` are conventional synchronous methods.
 They change the behaviour of the LED but return immediately. The flashing
 occurs "in the background". This is explained in detail in the next section.
 
+> `on()`、`off()`、`flash()` は従来の同期メソッドであることに注意してください。これらは LED の動作を変更しますが、すぐに戻ります。点滅は「バックグラウンド」で発生します。これについては次のセクションで詳しく説明します。
+
 The class conforms with the OOP principle of keeping the logic associated with
 the device within the class. Further, the way `uasyncio` works ensures that
 while the LED is flashing the application can respond to other events. The
 example below flashes the four Pyboard LED's at different rates while also
 responding to the USR button which terminates the program.
+
+> このクラスは、デバイスに関連するロジックをクラス内に保持するという OOP の原則に準拠しています。さらに、`uasyncio` の動作は、LED が点滅している間、アプリケーションが他のイベントに反応することを保証します。次の例では、4つのPyboard LEDを異なる速度で点滅させながら、プログラムを終了させるUSRボタンに反応しています。
 
 ```python
 import pyb
@@ -1940,6 +2004,8 @@ In contrast to the event loop example the logic associated with the switch is
 in a function separate from the LED functionality. Note the code used to start
 the scheduler:
 
+> イベントループの例とは対照的に、スイッチに関連するロジックはLED機能とは別の機能になっています。スケジューラの開始に使用されるコードに注目してください。
+
 ```python
 loop = asyncio.get_event_loop()
 loop.run_until_complete(killer())  # Execution passes to coroutines.
@@ -1951,9 +2017,13 @@ loop.run_until_complete(killer())  # Execution passes to coroutines.
 
 ## 8.4 Scheduling in uasyncio
 
+> 8.4 uasyncioにおけるスケジューリング
+
 Python 3.5 and MicroPython support the notion of an asynchronous function,
 also known as a coroutine (coro) or task. A coro must include at least one
 `await` statement.
+
+> Python 3.5 と MicroPython は非同期関数の概念をサポートしており、coroutine (coro) または task と言われているものです。coro は、少なくとも1つの `await` ステートメントを含まなければなりません。
 
 ```python
 async def hello():
@@ -1966,6 +2036,8 @@ This function prints the message ten times at one second intervals. While the
 function is paused pending the time delay asyncio will schedule other tasks,
 providing an illusion of concurrency.
 
+> この関数は、1秒間隔で10回メッセージを表示します。この関数が一時停止されている間、asyncio は他のタスクをスケジュールし、並列処理されているかのような錯覚を与えてくれます。
+
 When a coro issues `await asyncio.sleep_ms()` or `await asyncio.sleep()` the
 current task pauses: it is placed on a queue which is ordered on time due, and
 execution passes to the task at the top of the queue. The queue is designed so
@@ -1975,6 +2047,8 @@ practice to issue `await asyncio.sleep(0)` in loops to ensure a task doesn't
 hog execution. The following shows a busy-wait loop which waits for another
 task to set the global `flag`. Alas it monopolises the CPU preventing other
 coros from running:
+
+> coro が `await asyncio.sleep_ms()` または `await asyncio.sleep()` を発行すると、現在のタスクは一時停止し、そのタスクは、待機期限順に並べられたキューに置かれ、実行はキューの一番上にあるタスクに渡されます。このキューは、指定された sleep がゼロであっても、他の待機期限のあるタスクが現在のタスクを再開する前に実行されるように設計されています。これが「フェアー・ラウンドロビン」スケジューリングです。ループ内で `await asyncio.sleep(0)` を発行して、タスクの実行を妨げることがないようにするのが一般的です。次の例は、他のタスクがグローバルフラグを設定するのを待つビジーウェイトループを示しています。残念ながら、この例はCPUを独占して他の coro の実行を妨げています。
 
 ```python
 async def bad_code():
@@ -1987,6 +2061,8 @@ async def bad_code():
 
 The problem here is that while the `flag` is `False` the loop never yields to
 the scheduler so no other task will get to run. The correct approach is:
+
+> ここでの問題点は、'flag' が `False` である限り、ループがスケジューラに処理を譲らず、他のタスクは実行されないことです。正しいアプローチは次の通りです。
 
 ```python
 async def good_code():
@@ -2007,14 +2083,20 @@ will always issue `await` at regular intervals. Where a precise delay is
 required, especially one below a few ms, it may be necessary to use
 `utime.sleep_us(us)`.
 
+> 同様に、`utime.sleep(1)` のような遅延を発行するのもよくありません。他のタスクも1秒間停止させてしまうので、`await asyncio.sleep(1)` を使用してください。`uasyncio` のメソッド `sleep` と `sleep_ms` によってもたらされる遅延は、指定した時間をオーバーする可能性があることに注意してください。これは、遅延が進行している間に他のタスクが実行されるからです。遅延期間が終了すると、実行中のタスクが `await` を発行するか終了するまで実行は再開されません。行儀よく動作する coro は、常に一定の間隔で `await` を発行します。正確な遅延が必要な場合、特に数ミリ秒以下の遅延が必要な場合は、 `utime.sleep_us(us)` を使用する必要があるかもしれません。
+
 ###### [Contents](./TUTORIAL.ja-jp.md#contents)
 
 ## 8.5 Why cooperative rather than pre-emptive?
+
+> 8.5 なぜプリエンティブよりも協調型なのか？
 
 The initial reaction of beginners to the idea of cooperative multi-tasking is
 often one of disappointment. Surely pre-emptive is better? Why should I have to
 explicitly yield control when the Python virtual machine can do it for me?
 
+> 協調的マルチタスクのアイデアは、初心者が最初に反応を示すよくある失望の一つです。やはり、プリエンプティブの方が良いのでしょうか？Pythonの仮想マシンがしてくれるのに、なぜ明示的にコントロールをゆだねなければならないのでしょうか？
+ 
 When it comes to embedded systems the cooperative model has two advantages.
 Firstly, it is lightweight. It is possible to have large numbers of coroutines
 because unlike descheduled threads, paused coroutines contain little state.
@@ -2022,8 +2104,12 @@ Secondly it avoids some of the subtle problems associated with pre-emptive
 scheduling. In practice cooperative multi-tasking is widely used, notably in
 user interface applications.
 
+> 組込みシステムに関しては、協調モデルには2つの利点があります。第一に、軽量であることです。スケジューリングされないスレッドとは異なり、一時停止されたコルーチンは状態をほとんど含まないため、大量のコルーチンを持つことが可能です。第二に、プリエンプティブスケジューリングに関連する微妙な問題を回避することができます。実際には、協調的マルチタスクは、特にユーザーインターフェースアプリケーションで広く使われています。
+
 To make a case for the defence a pre-emptive model has one advantage: if
 someone writes
+
+> プリエンプティブモデルを擁護する説明として、次のように記述した場合であれば、１つのアドバンテージがあります。
 
 ```python
 for x in range(1000000):
@@ -2034,6 +2120,8 @@ it won't lock out other threads. Under cooperative schedulers the loop must
 explicitly yield control every so many iterations e.g. by putting the code in
 a coro and periodically issuing `await asyncio.sleep(0)`.
 
+> これは、他のスレッドをロックアウトすることはありません。協調スケジューラの下では、ループは何度も反復するたびに明示的にコントロールを放棄しなければなりません。例えば、coro 内にコードを入れて、定期的に `await asyncio.sleep(0)` を発行します。
+
 Alas this benefit of pre-emption pales into insignificance compared to the
 drawbacks. Some of these are covered in the documentation on writing
 [interrupt handlers](http://docs.micropython.org/en/latest/reference/isr_rules.html).
@@ -2043,36 +2131,55 @@ and fix a lockup resulting from a coro which fails to yield than locating the
 sometimes deeply subtle and rarely occurring bugs which can occur in
 pre-emptive code.
 
+> 残念ながら、プリエンプションの利点は、欠点に比べれば、意味のないものになってしまいます。その欠点のいくつかは、割り込みハンドラ([interrupt handlers](http://docs.micropython.org/en/latest/reference/isr_rules.html))の書き方のドキュメントで説明されています。プリエンプティブモデルでは、すべてのスレッドが他のスレッドに割り込み、他のスレッドで使用される可能性のあるデータを変更することができます。一般的には、プリエンプティブなコードで発生するような、時には深く微妙で、まれなバグを見つけて修正するよりも、coro の結果として発生するロックアップを見つけて修正する方がはるかに簡単です。
+
 To put this in simple terms, if you write a MicroPython coroutine, you can be
 sure that variables won't suddenly be changed by another coro: your coro has
 complete control until it issues `await asyncio.sleep(0)`.
 
+> 簡単に言うと、MicroPythonのコルーチンを書けば、変数が他の coro によって突然変更されることはありませんし、coro 内で `await asyncio.sleep(0)` を発行するまで、完全なコントロール下にあります。
+
 Bear in mind that interrupt handlers are pre-emptive. This applies to both hard
 and soft interrupts, either of which can occur at any point in your code.
+
+> 割り込みハンドラはプリエンプティブであることに注意してください。これは、コードのどの時点でも発生する可能性のあるハードとソフトの両方の割り込みに言えることです。
 
 An eloquent discussion of the evils of threading may be found
 [in threads are bad](https://glyph.twistedmatrix.com/2014/02/unyielding.html).
 
+> スレッド化の弊害についてよく表している議論は、[threads are bad](https://glyph.twistedmatrix.com/2014/02/unyielding.html) で見られます。
+
 ###### [Contents](./TUTORIAL.ja-jp.md#contents)
 
 ## 8.6 Communication
+
+> 8.6 通信
 
 In non-trivial applications coroutines need to communicate. Conventional Python
 techniques can be employed. These include the use of global variables or
 declaring coros as object methods: these can then share instance variables.
 Alternatively a mutable object may be passed as a coro argument.
 
+> ちょっとしたアプリケーションでは、コルーチン間で通信する必要があります。通常のPythonのテクニックを使うことができます。これには、グローバル変数の使用や、coro をオブジェクトメソッドとして宣言することが含まれます。これらは、インスタンス変数を共有することができます。また、変更可能なオブジェクトを coro の引数として渡すこともできます。
+
 Pre-emptive systems mandate specialist classes to achieve "thread safe"
 communications; in a cooperative system these are seldom required.
+
+> プリエンプティブシステムでは、「スレッドセーフ」な通信を実現するために、専用のクラスが必要となりますが、
+協調的システムでは、めったに必要とされません。
 
 ###### [Contents](./TUTORIAL.ja-jp.md#contents)
 
 ## 8.7 Polling
+
+> 8.7 ポーリング
 
 Some hardware devices such as the Pyboard accelerometer don't support
 interrupts, and therefore must be polled (i.e. checked periodically). Polling
 can also be used in conjunction with interrupt handlers: the interrupt handler
 services the hardware and sets a flag. A coro polls the flag: if it's set it
 handles the data and clears the flag. A better approach is to use an `Event`.
+
+> Pyboard加速度センサのようなハードウェアデバイスは割り込みをサポートしていないため、ポーリング（定期的なチェック）を行う必要があります。ポーリングは割り込みハンドラと組み合わせて使用することもできます。割り込みハンドラはハードウェアにサービスを提供し、フラグをセットします。coro はフラグをポーリングし、フラグがセットされていれば、データを処理してフラグをクリアします。より良いアプローチは、`Event` を使用することです。
 
 ###### [Contents](./TUTORIAL.ja-jp.md#contents)
