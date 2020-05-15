@@ -1,6 +1,6 @@
 # Application of uasyncio to hardware interfaces
 
-> ハードウェアインターフェースへのuasyncioを用いたアプリケーション
+> ハードウェアインターフェースにおけるuasyncioを用いたアプリケーション
 
 This tutorial is intended for users having varying levels of experience with
 asyncio and includes a section for complete beginners.
@@ -101,7 +101,7 @@ Except where detailed below, `asyncio` features of versions >3.4 are
 unsupported. As stated above it is a subset; this document identifies supported
 features.
 
-> MicroPython は Python 3.4をベースにしており、Python 3.5の追加は最小限に抑えられていることに注意してください。このドキュメントではサポートされている機能に限定しており、これから説明する場合を除いて、バージョン3.4以上の `asyncio` 機能をサポートしません。
+> MicroPython は Python 3.4をベースにしており、Python 3.5の追加は最小限に抑えられていることに注意してください。このドキュメントではサポートされている機能に限定しており、これから説明する場合を除いて、バージョン3.4より上の `asyncio` 機能をサポートしません。
 
 This tutorial aims to present a consistent programming style compatible with
 CPython V3.5 and above.
@@ -282,7 +282,7 @@ results by accessing Pyboard hardware.
  I/O mechanism.
 
 > 1. [aledflash.py](./aledflash.py) は、Pyboard上の4つのLEDを10秒間非同期で点滅させます。最もシンプルな uasyncio のデモです。インポートすると実行されます。
-> 2. [apoll.py](./apoll.py) Pyboard 加速度センサ用のデバイスドライバです。デバイスをポーリングするためのコルーチンの使用をデモします。20秒間ほど実行します。インポートすると実行されます。Pyboard V1.xが必要です。
+> 2. [apoll.py](./apoll.py) Pyboard 加速度センサ用のデバイスドライバです。デバイスをポーリングするための coroutine の使用をデモします。20秒間ほど実行します。インポートすると実行されます。Pyboard V1.xが必要です。
 > 3. [astests.py](./astests.py) aswitchモジュールのテスト/デモンストレーションプログラム。
 > 4. [asyn_demos.py](./asyn_demos.py) シンプルなタスクキャンセルのデモ。
 > 5. [roundrobin.py](./roundrobin.py) ラウンドロビンスケジューリングのデモ。スケジューリング性能のベンチマークにもなります。
@@ -1836,7 +1836,7 @@ discusses the relative merits of `uasyncio` and the `_thread` module and why
 you may prefer use cooperative (`uasyncio`) over pre-emptive (`_thread`)
 scheduling.
 
-> [セクション 8.5](./TUTORIAL.ja-jp.md#85-why-cooperative-rather-than-pre-emptive)では、 `uasyncio` と `_thread` モジュールの相対的なメリットと、プリエンプティブ（`_thread`）スケジューリングよりも 協調的（`uasyncio`）スケジューリングを使用する方が良い理由について議論しています。
+> [セクション 8.5](./TUTORIAL.ja-jp.md#85-why-cooperative-rather-than-pre-emptive)では、 `uasyncio` と `_thread` モジュールの相対的なメリットと、プリエンプティブ（`_thread`）スケジューリングよりも 協調的（`uasyncio`）スケジューリングを使用する方が良い理由について言及しています。
 
 ###### [Contents](./TUTORIAL.ja-jp.md#contents)
 
@@ -2095,7 +2095,7 @@ The initial reaction of beginners to the idea of cooperative multi-tasking is
 often one of disappointment. Surely pre-emptive is better? Why should I have to
 explicitly yield control when the Python virtual machine can do it for me?
 
-> 協調的マルチタスクのアイデアは、初心者が最初に反応を示すよくある失望の一つです。やはり、プリエンプティブの方が良いのでしょうか？Pythonの仮想マシンがしてくれるのに、なぜ明示的にコントロールをゆだねなければならないのでしょうか？
+> 協調的マルチタスクのアイデアは、よくあることですが、初心者が最初に感じる失望の一つです。やはり、プリエンプティブの方が良いのでしょうか？Pythonの仮想マシンがしてくれるのに、なぜ明示的にコントロールをゆだねなければならないのでしょうか？
  
 When it comes to embedded systems the cooperative model has two advantages.
 Firstly, it is lightweight. It is possible to have large numbers of coroutines
@@ -2104,7 +2104,7 @@ Secondly it avoids some of the subtle problems associated with pre-emptive
 scheduling. In practice cooperative multi-tasking is widely used, notably in
 user interface applications.
 
-> 組込みシステムに関しては、協調モデルには2つの利点があります。第一に、軽量であることです。スケジューリングされないスレッドとは異なり、一時停止されたコルーチンは状態をほとんど含まないため、大量のコルーチンを持つことが可能です。第二に、プリエンプティブスケジューリングに関連する微妙な問題を回避することができます。実際には、協調的マルチタスクは、特にユーザーインターフェースアプリケーションで広く使われています。
+> 組込みシステムに関しては、協調モデルには2つの利点があります。第一に、軽量であることです。スケジューリングされないスレッドとは異なり、一時停止された coroutine は状態をほとんど含まないため、大量の coroutine を持つことが可能です。第二に、プリエンプティブスケジューリングに関連する微妙な問題を回避することができます。実際には、協調的マルチタスクは、特にユーザーインターフェースアプリケーションで広く使われています。
 
 To make a case for the defence a pre-emptive model has one advantage: if
 someone writes
@@ -2120,7 +2120,7 @@ it won't lock out other threads. Under cooperative schedulers the loop must
 explicitly yield control every so many iterations e.g. by putting the code in
 a coro and periodically issuing `await asyncio.sleep(0)`.
 
-> これは、他のスレッドをロックアウトすることはありません。協調スケジューラの下では、ループは何度も反復するたびに明示的にコントロールを放棄しなければなりません。例えば、coro 内にコードを入れて、定期的に `await asyncio.sleep(0)` を発行します。
+> これは、他のスレッドをロックアウトすることはありません。協調的スケジューラの下では、ループは何度も反復するたびに明示的にコントロールを放棄しなければなりません。例えば、coro 内にコードを入れて、定期的に `await asyncio.sleep(0)` を発行します。
 
 Alas this benefit of pre-emption pales into insignificance compared to the
 drawbacks. Some of these are covered in the documentation on writing
@@ -2131,13 +2131,13 @@ and fix a lockup resulting from a coro which fails to yield than locating the
 sometimes deeply subtle and rarely occurring bugs which can occur in
 pre-emptive code.
 
-> 残念ながら、プリエンプションの利点は、欠点に比べれば、意味のないものになってしまいます。その欠点のいくつかは、割り込みハンドラ([interrupt handlers](http://docs.micropython.org/en/latest/reference/isr_rules.html))の書き方のドキュメントで説明されています。プリエンプティブモデルでは、すべてのスレッドが他のスレッドに割り込み、他のスレッドで使用される可能性のあるデータを変更することができます。一般的には、プリエンプティブなコードで発生するような、時には深く微妙で、まれなバグを見つけて修正するよりも、coro の結果として発生するロックアップを見つけて修正する方がはるかに簡単です。
+> 残念ながら、プリエンプションの利点は、欠点に比べれば、意味のないものになってしまいます。その欠点のいくつかは、割り込みハンドラ([interrupt handlers](http://docs.micropython.org/en/latest/reference/isr_rules.html))の書き方のドキュメントで説明されています。プリエンプティブモデルでは、すべてのスレッドが他のスレッドに割り込み、他のスレッドで使用される可能性のあるデータを変更することができます。一般的には、プリエンプティブなコードで発生するような、時には深く微妙で、まれに発生するバグを見つけて修正するよりも、coro の結果として発生するロックアップを見つけて修正する方がはるかに簡単です。
 
 To put this in simple terms, if you write a MicroPython coroutine, you can be
 sure that variables won't suddenly be changed by another coro: your coro has
 complete control until it issues `await asyncio.sleep(0)`.
 
-> 簡単に言うと、MicroPythonのコルーチンを書けば、変数が他の coro によって突然変更されることはありませんし、coro 内で `await asyncio.sleep(0)` を発行するまで、完全なコントロール下にあります。
+> 簡単に言うと、MicroPythonの coroutine を書けば、変数が他の coro によって突然変更されることはありませんし、coro 内で `await asyncio.sleep(0)` を発行するまで、完全なコントロール下にあります。
 
 Bear in mind that interrupt handlers are pre-emptive. This applies to both hard
 and soft interrupts, either of which can occur at any point in your code.
@@ -2160,7 +2160,7 @@ techniques can be employed. These include the use of global variables or
 declaring coros as object methods: these can then share instance variables.
 Alternatively a mutable object may be passed as a coro argument.
 
-> ちょっとしたアプリケーションでは、コルーチン間で通信する必要があります。通常のPythonのテクニックを使うことができます。これには、グローバル変数の使用や、coro をオブジェクトメソッドとして宣言することが含まれます。これらは、インスタンス変数を共有することができます。また、変更可能なオブジェクトを coro の引数として渡すこともできます。
+> ちょっとしたアプリケーションでは、coroutine 間で通信する必要があります。通常のPythonのテクニックを使うことができます。これには、グローバル変数の使用や、coro をオブジェクトメソッドとして宣言することが含まれます。これらは、インスタンス変数を共有することができます。また、変更可能なオブジェクトを coro の引数として渡すこともできます。
 
 Pre-emptive systems mandate specialist classes to achieve "thread safe"
 communications; in a cooperative system these are seldom required.
